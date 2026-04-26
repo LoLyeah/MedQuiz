@@ -1,4 +1,5 @@
 export type Difficulty = 'easy' | 'medium' | 'hard';
+export type ApiProvider = 'system-gemini' | 'user-gemini' | 'custom';
 
 export interface Question {
   id: string;
@@ -24,6 +25,8 @@ export interface UserStats {
 export interface AppSettings {
   difficulty: Difficulty;
   useCustomApi: boolean;
+  apiProvider?: ApiProvider;
   customApiEndpoint?: string;
   customApiKey?: string;
+  userGeminiKey?: string;
 }

@@ -13,13 +13,19 @@ export function SettingsModal({ settings, onSave, onClose }: Props) {
   const [useCustom, setUseCustom] = useState(settings.useCustomApi);
   const [endpoint, setEndpoint] = useState(settings.customApiEndpoint || '');
   const [key, setKey] = useState(settings.customApiKey || '');
+  
+  const initialProvider = settings.apiProvider || (settings.useCustomApi ? 'custom' : 'system-gemini');
+  const [provider, setProvider] = useState<typeof initialProvider>(initialProvider);
+  const [geminiKey, setGeminiKey] = useState(settings.userGeminiKey || '');
 
   const handleSave = () => {
     onSave({
       difficulty: diff,
-      useCustomApi: useCustom,
+      useCustomApi: provider === 'custom',
+      apiProvider: provider,
       customApiEndpoint: endpoint,
       customApiKey: key,
+      userGeminiKey: geminiKey,
     });
     onClose();
   };
@@ -59,24 +65,41 @@ export function SettingsModal({ settings, onSave, onClose }: Props) {
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 block">
-              API Connection
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 block">
+              AI Provider
             </label>
-            <div className="flex items-center gap-3 mb-4">
-              <input
-                type="checkbox"
-                id="useCustom"
-                checked={useCustom}
-                onChange={e => setUseCustom(e.target.checked)}
-                className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-              />
-              <label htmlFor="useCustom" className="text-sm font-medium text-slate-700">
-                Use Custom AI Endpoint
-              </label>
+            <div className="flex flex-col gap-3">
+               <label className="flex items-center gap-3 cursor-pointer">
+                 <input type="radio" name="apiProvider" checked={provider === 'system-gemini'} onChange={() => setProvider('system-gemini')} className="w-4 h-4 text-blue-600 focus:ring-blue-500" />
+                 <span className="text-sm font-medium text-slate-700">System Gemini (Default)</span>
+               </label>
+               <label className="flex items-center gap-3 cursor-pointer">
+                 <input type="radio" name="apiProvider" checked={provider === 'user-gemini'} onChange={() => setProvider('user-gemini')} className="w-4 h-4 text-blue-600 focus:ring-blue-500" />
+                 <span className="text-sm font-medium text-slate-700">Your Gemini API Key</span>
+               </label>
+               <label className="flex items-center gap-3 cursor-pointer">
+                 <input type="radio" name="apiProvider" checked={provider === 'custom'} onChange={() => setProvider('custom')} className="w-4 h-4 text-blue-600 focus:ring-blue-500" />
+                 <span className="text-sm font-medium text-slate-700">Custom OpenAI-Compatible API</span>
+               </label>
             </div>
 
-            {useCustom && (
-              <div className="space-y-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+            {provider === 'user-gemini' && (
+              <div className="space-y-4 p-4 mt-4 bg-slate-50 rounded-xl border border-slate-100">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1">Gemini API Key</label>
+                  <input
+                    type="password"
+                    value={geminiKey}
+                    onChange={e => setGeminiKey(e.target.value)}
+                    placeholder="AIza..."
+                    className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition text-sm"
+                  />
+                </div>
+              </div>
+            )}
+
+            {provider === 'custom' && (
+              <div className="space-y-4 p-4 mt-4 bg-slate-50 rounded-xl border border-slate-100">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 mb-1">API Endpoint URL</label>
                   <input

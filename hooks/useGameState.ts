@@ -16,6 +16,7 @@ const DEFAULT_STATS: UserStats = {
 const DEFAULT_SETTINGS: AppSettings = {
   difficulty: 'medium',
   useCustomApi: false,
+  apiProvider: 'system-gemini',
 };
 
 export function useGameState() {

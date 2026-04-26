@@ -116,6 +116,13 @@ export default function Home() {
   const evalMeta = getEvalMeta(sessionAccuracy);
   const EvalIcon = evalMeta.icon;
 
+  const getEngineName = () => {
+    if (settings.apiProvider === 'custom' || settings.useCustomApi) return 'Custom API';
+    if (settings.apiProvider === 'user-gemini') return 'Your Gemini Key';
+    return 'Gemini Flash';
+  };
+  const currentEngineName = getEngineName();
+
   // If we haven't loaded questions properly or on dashboard
   if (isGameOver) {
     return (
@@ -123,7 +130,7 @@ export default function Home() {
         <Sidebar 
           isOnline={isOnline} 
           onOpenSettings={() => setShowSettings(true)} 
-          engineName={settings.useCustomApi ? 'Custom API' : 'Gemini Flash'} 
+          engineName={currentEngineName} 
           currentView={currentView}
           onSetView={(v) => setCurrentView(v as any)}
         />
@@ -347,7 +354,7 @@ export default function Home() {
       <Sidebar 
           isOnline={isOnline} 
           onOpenSettings={() => setShowSettings(true)} 
-          engineName={settings.useCustomApi ? 'Custom API' : 'Gemini Flash'} 
+          engineName={currentEngineName} 
           currentView="quiz"
           onSetView={(v) => setCurrentView(v as any)}
       />

@@ -15,7 +15,10 @@ Return a JSON array of objects. Each object must have exactly these keys:
 - explanation: a detailed clinical insight explaining why the answer is correct and others are less likely.
 Respond ONLY with the JSON array, no markdown formatting like \`\`\`json.`;
 
-  if (settings.useCustomApi && settings.customApiEndpoint) {
+  const isCustom = settings.apiProvider === 'custom' || settings.useCustomApi;
+  const isUserGemini = settings.apiProvider === 'user-gemini';
+
+  if (isCustom && settings.customApiEndpoint) {
     const res = await fetch(settings.customApiEndpoint, {
       method: 'POST',
       headers: {
@@ -47,10 +50,15 @@ Respond ONLY with the JSON array, no markdown formatting like \`\`\`json.`;
       difficulty
     }));
   } else {
-    if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
-      throw new Error('NEXT_PUBLIC_GEMINI_API_KEY is missing');
+    let apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    if (isUserGemini && settings.userGeminiKey) {
+      apiKey = settings.userGeminiKey;
     }
-    const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY });
+    
+    if (!apiKey) {
+      throw new Error('Gemini API Key is missing. Please provide it in settings or ensure default is configured.');
+    }
+    const ai = new GoogleGenAI({ apiKey: apiKey });
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
