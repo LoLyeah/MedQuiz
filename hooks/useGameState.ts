@@ -122,6 +122,28 @@ export function useGameState() {
     }
   }, [isOnline, questionBank.length, settings]);
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const refreshBank = async () => {
+    setIsRefreshing(true);
+    try {
+      const moreQs = await generateQuestions(5, settings.difficulty, settings);
+      setQuestionBank(prev => {
+        const newBank = [...prev];
+        for (const q of moreQs) {
+          if (!newBank.find(b => b.caseStudy === q.caseStudy)) {
+            newBank.push(q);
+          }
+        }
+        return newBank;
+      });
+    } catch (e) {
+      console.error('Manual fetch failed:', e);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const startGame = async () => {
     setIsLoading(true);
     // Take from current bank + mix, filter by difficulty first
@@ -220,6 +242,8 @@ export function useGameState() {
     showEvaluation,
     setShowEvaluation,
     startGame,
+    refreshBank,
+    isRefreshing,
     handleAnswer,
     nextQuestion,
     updateSettings,

@@ -5,7 +5,7 @@ import { motion } from 'motion/react';
 import { useGameState } from '@/hooks/useGameState';
 import { SettingsModal } from '@/components/SettingsModal';
 import { ReportModal } from '@/components/ReportModal';
-import { Play, Activity, Trophy, Settings, Wifi, WifiOff, FileWarning, Medal, LayoutDashboard, Library, Globe, CheckCircle2, XCircle, AlertCircle, Tag } from 'lucide-react';
+import { Play, Activity, Trophy, Settings, Wifi, WifiOff, FileWarning, Medal, LayoutDashboard, Library, Globe, CheckCircle2, XCircle, AlertCircle, Tag, RefreshCw } from 'lucide-react';
 
 export default function Home() {
   const gameState = useGameState();
@@ -20,7 +20,8 @@ export default function Home() {
   const {
     stats, settings, currentStreak, questions, currentQuestion, 
     currentIndex, isGameOver, isLoading, isOnline, bankSize, questionBank,
-    startGame, handleAnswer, nextQuestion, updateSettings, finishGame
+    startGame, handleAnswer, nextQuestion, updateSettings, finishGame,
+    refreshBank, isRefreshing
   } = gameState;
 
   const onSelectOption = (option: string) => {
@@ -282,13 +283,23 @@ export default function Home() {
                   </div>
                 </div>
 
-                <button 
-                  onClick={startGame}
-                  disabled={isLoading}
-                  className="bg-blue-600 text-white px-8 md:px-12 py-3 md:py-4 rounded-full font-bold text-base md:text-lg hover:bg-blue-700 transition shadow-xl shadow-blue-200 flex items-center justify-center gap-3 disabled:opacity-50 w-full"
-                >
-                  {isLoading ? 'Preparing Cases...' : <><Play className="w-5 h-5 fill-current" /> Start Evaluation</>}
-                </button>
+                <div className="flex flex-col gap-3 w-full">
+                  <button 
+                    onClick={startGame}
+                    disabled={isLoading}
+                    className="bg-blue-600 text-white px-8 md:px-12 py-3 md:py-4 rounded-full font-bold text-base md:text-lg hover:bg-blue-700 transition shadow-xl shadow-blue-200 flex items-center justify-center gap-3 disabled:opacity-50 w-full"
+                  >
+                    {isLoading ? 'Preparing Cases...' : <><Play className="w-5 h-5 fill-current" /> Start Evaluation</>}
+                  </button>
+                  <button 
+                    onClick={refreshBank}
+                    disabled={isRefreshing || !isOnline}
+                    className="text-slate-500 hover:text-slate-700 font-bold text-sm flex items-center justify-center gap-2 transition disabled:opacity-50 h-10"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} /> 
+                    {isRefreshing ? 'Generating New Cases...' : `Refresh AI Cases (${bankSize} ready)`}
+                  </button>
+                </div>
               </div>
            </motion.div>
         </main>
