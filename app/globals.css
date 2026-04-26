@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@layer components {
+    .bento-card { 
+        background: white; 
+        border-radius: 20px; 
+        border: 1px solid var(--color-slate-200, #E2E8F0); 
+        box-shadow: 0 4px 12px -2px rgba(0,0,0,0.05); 
+        transition: all 0.2s ease; 
+    }
+    .choice-btn { 
+        width: 100%; 
+        text-align: left; 
+        padding: 14px 20px; 
+        border-radius: 12px; 
+        border: 2px solid var(--color-slate-100, #F1F5F9); 
+        background: var(--color-slate-50, #F8FAFC); 
+        font-weight: 500; 
+        color: var(--color-slate-600, #475569); 
+        transition: all 0.2s; 
+    }
+    .choice-btn:hover:not(:disabled) { 
+        border-color: var(--color-blue-500, #3B82F6); 
+        background: var(--color-blue-50, #EFF6FF); 
+        color: var(--color-blue-700, #1D4ED8); 
+    }
+    .choice-btn.selected { 
+        border-color: var(--color-blue-500, #3B82F6); 
+        background: var(--color-blue-50, #EFF6FF); 
+        color: var(--color-blue-700, #1D4ED8); 
+    }
+    .choice-btn.correct { 
+        border-color: var(--color-green-500, #10B981); 
+        background: var(--color-green-50, #ECFDF5); 
+        color: var(--color-green-700, #047857); 
+    }
+    .choice-btn.wrong { 
+        border-color: var(--color-red-500, #EF4444); 
+        background: var(--color-red-50, #FEF2F2); 
+        color: var(--color-red-700, #B91C1C); 
+    }
+    .badge { 
+        padding: 4px 12px; 
+        border-radius: 9999px; 
+        font-size: 11px; 
+        font-weight: 700; 
+        text-transform: uppercase; 
+        letter-spacing: 0.05em; 
+    }
+    .progress-fill { 
+        height: 100%; 
+        border-radius: 9999px; 
+        background: linear-gradient(90deg, var(--color-blue-500, #3B82F6) 0%, var(--color-blue-400, #60A5FA) 100%); 
+        transition: width 0.5s ease-out; 
+    }
+    .sidebar-item { 
+        display: flex; 
+        align-items: center; 
+        gap: 12px; 
+        padding: 12px; 
+        border-radius: 12px; 
+        cursor: pointer; 
+        color: var(--color-slate-500, #64748B); 
+        font-weight: 500; 
+        transition: all 0.2s;
+    }
+    .sidebar-item:hover {
+        background: var(--color-slate-100, #F1F5F9);
+        color: var(--color-slate-700, #334155);
+    }
+    .sidebar-item.active { 
+        background: var(--color-blue-500, #3B82F6); 
+        color: white; 
+    }
+    .sidebar-item.active:hover {
+        background: var(--color-blue-500, #3B82F6); 
+    }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+}
+

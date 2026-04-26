@@ -1,0 +1,6 @@
+{
+  "name": "MedQuiz Diagnostics",
+  "description": "An interactive medical diagnosis quiz app with gamification, AI-generated questions, and offline play.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
