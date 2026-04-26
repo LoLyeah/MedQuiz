@@ -26,7 +26,7 @@ Respond ONLY with the JSON array, no markdown formatting like \`\`\`json.`;
         ...(settings.customApiKey ? { 'Authorization': `Bearer ${settings.customApiKey}` } : {})
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
+        model: settings.customApiModel || "llama3-8b-8192",
         messages: [{ role: "user", content: prompt }]
       })
     });
@@ -36,10 +36,16 @@ Respond ONLY with the JSON array, no markdown formatting like \`\`\`json.`;
     }
 
     const data = await res.json();
-    let content = data.choices?.[0]?.message?.content || data.content;
+    let content = data.choices?.[0]?.message?.content || data.content || '';
     
-    if (content.startsWith('\`\`\`json')) {
-        content = content.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '');
+    // Clean up Markdown backticks if they exist
+    content = content.replace(/```json/g, '').replace(/```/g, '');
+    
+    // Fallback: try to find the array boundaries
+    const startIdx = content.indexOf('[');
+    const endIdx = content.lastIndexOf(']');
+    if (startIdx >= 0 && endIdx >= startIdx) {
+        content = content.substring(startIdx, endIdx + 1);
     }
 
     const parsed: Omit<Question, 'id' | 'source' | 'difficulty'>[] = JSON.parse(content);

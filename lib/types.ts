@@ -28,5 +28,6 @@ export interface AppSettings {
   apiProvider?: ApiProvider;
   customApiEndpoint?: string;
   customApiKey?: string;
+  customApiModel?: string;
   userGeminiKey?: string;
 }

@@ -13,6 +13,7 @@ export function SettingsModal({ settings, onSave, onClose }: Props) {
   const [useCustom, setUseCustom] = useState(settings.useCustomApi);
   const [endpoint, setEndpoint] = useState(settings.customApiEndpoint || '');
   const [key, setKey] = useState(settings.customApiKey || '');
+  const [apiModel, setApiModel] = useState(settings.customApiModel || '');
   
   const initialProvider = settings.apiProvider || (settings.useCustomApi ? 'custom' : 'system-gemini');
   const [provider, setProvider] = useState<typeof initialProvider>(initialProvider);
@@ -25,6 +26,7 @@ export function SettingsModal({ settings, onSave, onClose }: Props) {
       apiProvider: provider,
       customApiEndpoint: endpoint,
       customApiKey: key,
+      customApiModel: apiModel,
       userGeminiKey: geminiKey,
     });
     onClose();
@@ -107,6 +109,16 @@ export function SettingsModal({ settings, onSave, onClose }: Props) {
                     value={endpoint}
                     onChange={e => setEndpoint(e.target.value)}
                     placeholder="https://api.openai.com/v1/chat/completions"
+                    className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1">Model Name / ID</label>
+                  <input
+                    type="text"
+                    value={apiModel}
+                    onChange={e => setApiModel(e.target.value)}
+                    placeholder="llama3-8b-8192"
                     className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition text-sm"
                   />
                 </div>
