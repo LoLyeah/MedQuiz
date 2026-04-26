@@ -538,7 +538,7 @@ function Sidebar({ isOnline, onOpenSettings, engineName, currentView, onSetView 
           <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-lg md:text-xl shadow-lg shadow-blue-200">
             <Activity className="w-5 h-5 md:w-6 md:h-6 stroke-[2.5]" />
           </div>
-          <h1 className="text-lg md:text-xl font-bold text-slate-800 tracking-tight hidden sm:block">MediQuiz AI</h1>
+          <h1 className="text-lg md:text-xl font-bold text-slate-800 tracking-tight hidden sm:block">MedQuiz AI</h1>
         </div>
 
         <nav className="flex flex-row md:flex-col gap-1 md:flex-1 w-full overflow-x-auto custom-scrollbar items-center md:items-stretch py-1 md:py-0">
