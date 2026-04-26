@@ -8,6 +8,7 @@ export interface Question {
   explanation: string;
   difficulty: Difficulty;
   source: 'local' | 'ai';
+  tags?: string[];
 }
 
 export interface UserStats {
