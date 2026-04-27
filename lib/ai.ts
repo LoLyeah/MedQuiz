@@ -83,3 +83,40 @@ Respond ONLY with the JSON array, no markdown formatting like \`\`\`json.`;
     }));
   }
 }
+
+export async function checkApiConnection(settings: AppSettings): Promise<boolean> {
+  try {
+    const isCustom = settings.apiProvider === 'custom' || settings.useCustomApi;
+    const isUserGemini = settings.apiProvider === 'user-gemini';
+
+    if (isCustom && settings.customApiEndpoint) {
+      if (!settings.customApiEndpoint) return false;
+      const res = await fetch(settings.customApiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(settings.customApiKey ? { 'Authorization': `Bearer ${settings.customApiKey}` } : {})
+        },
+        body: JSON.stringify({
+          model: settings.customApiModel || "llama3-8b-8192",
+          messages: [{ role: "user", content: "Reply with ok" }]
+        })
+      });
+      return res.ok;
+    } else {
+      let apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+      if (isUserGemini && settings.userGeminiKey) {
+        apiKey = settings.userGeminiKey;
+      }
+      if (!apiKey) return false;
+      const ai = new GoogleGenAI({ apiKey: apiKey });
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: 'Reply with ok',
+      });
+      return !!response.text;
+    }
+  } catch (e) {
+    return false;
+  }
+}

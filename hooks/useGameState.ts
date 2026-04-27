@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Question, UserStats, AppSettings, Difficulty } from '@/lib/types';
 import { predefinedQuestions } from '@/lib/questions';
-import { generateQuestions } from '@/lib/ai';
+import { generateQuestions, checkApiConnection } from '@/lib/ai';
 
 const DEFAULT_STATS: UserStats = {
   score: 0,
@@ -33,11 +33,32 @@ export function useGameState() {
   const [isGameOver, setIsGameOver] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
+  const [apiStatus, setApiStatus] = useState<'checking' | 'online' | 'offline'>('checking');
   
   const [sessionScore, setSessionScore] = useState(0);
   const [sessionQuestionsCount, setSessionQuestionsCount] = useState(0);
   const [showEvaluation, setShowEvaluation] = useState(false);
   
+  // Check API connection
+  useEffect(() => {
+    let mounted = true;
+    if (!isOnline) {
+       Promise.resolve().then(() => {
+         if (mounted) setApiStatus('offline');
+       });
+       return;
+    }
+    Promise.resolve().then(() => {
+      if (mounted) setApiStatus('checking');
+    });
+    checkApiConnection(settings).then(ok => {
+      if (mounted) setApiStatus(ok ? 'online' : 'offline');
+    }).catch(() => {
+      if (mounted) setApiStatus('offline');
+    });
+    return () => { mounted = false; };
+  }, [settings, isOnline]);
+
   // Load stats, settings, and bank from local storage
   useEffect(() => {
     let mounted = true;
@@ -236,6 +257,7 @@ export function useGameState() {
     isGameOver,
     isLoading,
     isOnline,
+    apiStatus,
     bankSize: questionBank.length,
     questionBank,
     sessionScore,

@@ -19,7 +19,7 @@ export default function Home() {
 
   const {
     stats, settings, currentStreak, questions, currentQuestion, 
-    currentIndex, isGameOver, isLoading, isOnline, bankSize, questionBank,
+    currentIndex, isGameOver, isLoading, isOnline, apiStatus, bankSize, questionBank,
     startGame, handleAnswer, nextQuestion, updateSettings, finishGame,
     refreshBank, isRefreshing
   } = gameState;
@@ -129,6 +129,7 @@ export default function Home() {
       <div className="flex flex-col md:flex-row h-screen w-full bg-slate-50 font-sans p-4 md:p-6 overflow-hidden">
         <Sidebar 
           isOnline={isOnline} 
+          apiStatus={apiStatus}
           onOpenSettings={() => setShowSettings(true)} 
           engineName={currentEngineName} 
           currentView={currentView}
@@ -360,6 +361,7 @@ export default function Home() {
     <div className="flex flex-col md:flex-row h-screen w-full bg-slate-50 font-sans p-4 md:p-6 overflow-hidden">
       <Sidebar 
           isOnline={isOnline} 
+          apiStatus={apiStatus}
           onOpenSettings={() => setShowSettings(true)} 
           engineName={currentEngineName} 
           currentView="quiz"
@@ -558,7 +560,7 @@ export default function Home() {
   );
 }
 
-function Sidebar({ isOnline, onOpenSettings, engineName, currentView, onSetView }: { isOnline: boolean, onOpenSettings: () => void, engineName: string, currentView: string, onSetView: (v: string) => void }) {
+function Sidebar({ isOnline, apiStatus, onOpenSettings, engineName, currentView, onSetView }: { isOnline: boolean, apiStatus: string, onOpenSettings: () => void, engineName: string, currentView: string, onSetView: (v: string) => void }) {
   return (
     <aside className="w-full md:w-64 flex flex-col shrink-0 bg-slate-50 gap-2 md:gap-4 md:justify-start">
         <div className="flex items-center justify-between px-2 md:mb-8 mt-1 md:mt-2">
@@ -574,15 +576,25 @@ function Sidebar({ isOnline, onOpenSettings, engineName, currentView, onSetView 
             <div className="flex flex-col items-end">
               <span className="text-xs font-bold text-slate-700 max-w-[100px] truncate">{engineName}</span>
               <div className="flex items-center gap-1.5 text-[9px] font-bold font-mono">
-                 {isOnline ? (
+                 {!isOnline ? (
+                    <>
+                      <div className="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
+                      <span className="text-slate-500">OFFLINE</span>
+                    </>
+                 ) : apiStatus === 'online' ? (
                     <>
                       <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
                       <span className="text-green-600">ONLINE</span>
                     </>
+                 ) : apiStatus === 'checking' ? (
+                    <>
+                      <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></div>
+                      <span className="text-yellow-600">CHECKING</span>
+                    </>
                  ) : (
                     <>
                       <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
-                      <span className="text-red-600">OFFLINE</span>
+                      <span className="text-red-600">API ERROR</span>
                     </>
                  )}
               </div>
@@ -625,15 +637,25 @@ function Sidebar({ isOnline, onOpenSettings, engineName, currentView, onSetView 
             <div className="flex flex-col">
               <span className="text-sm font-bold text-slate-700 truncate">{engineName}</span>
               <div className="flex items-center gap-1.5 text-xs font-bold font-mono">
-                 {isOnline ? (
+                 {!isOnline ? (
+                    <>
+                      <div className="w-2 h-2 rounded-full bg-slate-400"></div>
+                      <span className="text-slate-500">OFFLINE</span>
+                    </>
+                 ) : apiStatus === 'online' ? (
                     <>
                       <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                       <span className="text-green-600">ONLINE</span>
                     </>
+                 ) : apiStatus === 'checking' ? (
+                    <>
+                      <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
+                      <span className="text-yellow-600">CHECKING...</span>
+                    </>
                  ) : (
                     <>
                       <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                      <span className="text-red-600">OFFLINE</span>
+                      <span className="text-red-600">API ERROR</span>
                     </>
                  )}
               </div>
