@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import { X, Send } from 'lucide-react';
 
 interface Props {
@@ -20,8 +21,18 @@ export function ReportModal({ questionId, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
-      <div className="bento-card w-full max-w-md p-6 relative">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4"
+    >
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        className="bento-card w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto"
+      >
         {!submitted && (
           <button 
             onClick={onClose}
@@ -63,7 +74,7 @@ export function ReportModal({ questionId, onClose }: Props) {
             </form>
           </>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

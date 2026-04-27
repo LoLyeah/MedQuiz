@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import { AppSettings } from '@/lib/types';
 import { X } from 'lucide-react';
 
@@ -33,8 +34,18 @@ export function SettingsModal({ settings, onSave, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
-      <div className="bento-card w-full max-w-md p-6 relative">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4"
+    >
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        className="bento-card w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto"
+      >
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition"
@@ -49,18 +60,19 @@ export function SettingsModal({ settings, onSave, onClose }: Props) {
             <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 block">
               Difficulty
             </label>
-            <div className="flex gap-2">
+            <div className="flex bg-slate-100 border border-slate-200 rounded-xl p-1 shadow-sm w-full">
               {(['easy', 'medium', 'hard'] as const).map(d => (
                 <button
                   key={d}
                   onClick={() => setDiff(d)}
-                  className={`flex-1 py-2 px-4 rounded-xl border-2 text-sm font-bold capitalize transition-all ${
+                  className={`relative flex-1 py-2 px-2 rounded-lg text-sm font-bold capitalize transition-colors ${
                     diff === d 
-                      ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                      : 'border-slate-100 bg-slate-50 text-slate-500 hover:border-slate-300'
+                      ? 'text-blue-700' 
+                      : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
                   }`}
                 >
-                  {d}
+                  {diff === d && <motion.div layoutId="settings-diff-slider" className="absolute inset-0 bg-white rounded-lg shadow-sm border border-slate-200" style={{ zIndex: 0 }} transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }} />}
+                  <span className="relative z-10">{d}</span>
                 </button>
               ))}
             </div>
@@ -145,7 +157,7 @@ export function SettingsModal({ settings, onSave, onClose }: Props) {
             Save Changes
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

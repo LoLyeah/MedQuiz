@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useGameState } from '@/hooks/useGameState';
 import { SettingsModal } from '@/components/SettingsModal';
 import { ReportModal } from '@/components/ReportModal';
@@ -271,33 +271,38 @@ export default function Home() {
                   <div className="flex bg-slate-100 border border-slate-200 rounded-full p-1.5 shadow-sm w-full">
                     <button 
                       onClick={() => updateSettings({ difficulty: 'easy' })}
-                      className={`flex-1 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-all ${settings.difficulty === 'easy' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
+                      className={`relative flex-1 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-colors ${settings.difficulty === 'easy' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
                     >
-                      Easy
+                      {settings.difficulty === 'easy' && <motion.div layoutId="diff-slider" className="absolute inset-0 bg-white rounded-full shadow-sm" style={{zIndex: 0}} transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }} />}
+                      <span className="relative z-10">Easy</span>
                     </button>
                     <button 
                       onClick={() => updateSettings({ difficulty: 'medium' })}
-                      className={`flex-1 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-all ${settings.difficulty === 'medium' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
+                      className={`relative flex-1 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-colors ${settings.difficulty === 'medium' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
                     >
-                      Medium
+                      {settings.difficulty === 'medium' && <motion.div layoutId="diff-slider" className="absolute inset-0 bg-white rounded-full shadow-sm" style={{zIndex: 0}} transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }} />}
+                      <span className="relative z-10">Medium</span>
                     </button>
                     <button 
                       onClick={() => updateSettings({ difficulty: 'hard' })}
-                      className={`flex-1 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-all ${settings.difficulty === 'hard' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
+                      className={`relative flex-1 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-colors ${settings.difficulty === 'hard' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
                     >
-                      Hard
+                      {settings.difficulty === 'hard' && <motion.div layoutId="diff-slider" className="absolute inset-0 bg-white rounded-full shadow-sm" style={{zIndex: 0}} transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }} />}
+                      <span className="relative z-10">Hard</span>
                     </button>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-3 w-full">
-                  <button 
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={startGame}
                     disabled={isLoading}
                     className="bg-blue-600 text-white px-8 md:px-12 py-3 md:py-4 rounded-full font-bold text-base md:text-lg hover:bg-blue-700 transition shadow-xl shadow-blue-200 flex items-center justify-center gap-3 disabled:opacity-50 w-full"
                   >
                     {isLoading ? 'Preparing Cases...' : <><Play className="w-5 h-5 fill-current" /> Start Evaluation</>}
-                  </button>
+                  </motion.button>
                   <button 
                     onClick={refreshBank}
                     disabled={isRefreshing || !isOnline}
@@ -341,7 +346,9 @@ export default function Home() {
              </div>
           </main>
         )}
-        {showSettings && <SettingsModal settings={settings} onSave={updateSettings} onClose={() => setShowSettings(false)} />}
+        <AnimatePresence>
+          {showSettings && <SettingsModal settings={settings} onSave={updateSettings} onClose={() => setShowSettings(false)} />}
+        </AnimatePresence>
       </div>
     );
   }
@@ -543,8 +550,10 @@ export default function Home() {
       </div>
     </main>
 
-      {showSettings && <SettingsModal settings={settings} onSave={updateSettings} onClose={() => setShowSettings(false)} />}
-      {showReport && currentQuestion && <ReportModal questionId={currentQuestion.id} onClose={() => setShowReport(false)} />}
+      <AnimatePresence>
+        {showSettings && <SettingsModal settings={settings} onSave={updateSettings} onClose={() => setShowSettings(false)} />}
+        {showReport && currentQuestion && <ReportModal questionId={currentQuestion.id} onClose={() => setShowReport(false)} />}
+      </AnimatePresence>
     </div>
   );
 }
