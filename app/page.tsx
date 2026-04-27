@@ -551,20 +551,49 @@ export default function Home() {
 
 function Sidebar({ isOnline, onOpenSettings, engineName, currentView, onSetView }: { isOnline: boolean, onOpenSettings: () => void, engineName: string, currentView: string, onSetView: (v: string) => void }) {
   return (
-    <aside className="w-full md:w-64 flex flex-row md:flex-col shrink-0 bg-slate-50 gap-4 justify-between md:justify-start">
-        <div className="flex items-center gap-2 md:gap-3 px-2 md:mb-8 mt-1 md:mt-2">
-          <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-lg md:text-xl shadow-lg shadow-blue-200">
-            <Activity className="w-5 h-5 md:w-6 md:h-6 stroke-[2.5]" />
+    <aside className="w-full md:w-64 flex flex-col shrink-0 bg-slate-50 gap-2 md:gap-4 md:justify-start">
+        <div className="flex items-center justify-between px-2 md:mb-8 mt-1 md:mt-2">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-lg md:text-xl shadow-lg shadow-blue-200">
+              <Activity className="w-5 h-5 md:w-6 md:h-6 stroke-[2.5]" />
+            </div>
+            <h1 className="text-lg md:text-xl font-bold text-slate-800 tracking-tight hidden sm:block">MedQuiz AI</h1>
           </div>
-          <h1 className="text-lg md:text-xl font-bold text-slate-800 tracking-tight hidden sm:block">MedQuiz AI</h1>
+          
+          {/* Mobile Settings */}
+          <div className="md:hidden flex items-center gap-3">
+            <div className="flex flex-col items-end">
+              <span className="text-xs font-bold text-slate-700 max-w-[100px] truncate">{engineName}</span>
+              <div className="flex items-center gap-1.5 text-[9px] font-bold font-mono">
+                 {isOnline ? (
+                    <>
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                      <span className="text-green-600">ONLINE</span>
+                    </>
+                 ) : (
+                    <>
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                      <span className="text-red-600">OFFLINE</span>
+                    </>
+                 )}
+              </div>
+            </div>
+            <button 
+              onClick={onOpenSettings}
+              className="p-1.5 bg-blue-100 text-blue-600 rounded-lg shrink-0"
+              title="Settings"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
-        <nav className="flex flex-row md:flex-col gap-1 md:flex-1 w-full overflow-x-auto custom-scrollbar items-center md:items-stretch py-1 md:py-0">
+        <nav className="flex flex-row md:flex-col gap-2 md:gap-3 md:flex-1 w-full overflow-x-auto custom-scrollbar md:items-stretch py-1 md:py-0">
           <div className={`sidebar-item flex-shrink-0 flex items-center gap-2 ${currentView === 'dashboard' || currentView === 'quiz' ? 'active' : ''}`} onClick={() => currentView !== 'quiz' && onSetView('dashboard')}>
              <LayoutDashboard className="w-4 h-4 md:w-5 md:h-5" />
              <span className="text-sm md:text-base">Dashboard</span>
           </div>
-          <div className={`sidebar-item flex-shrink-0 flex items-center gap-2 md:mt-4 ${currentView === 'library' ? 'active' : ''}`} onClick={() => currentView !== 'quiz' && onSetView('library')}>
+          <div className={`sidebar-item flex-shrink-0 flex items-center gap-2 ${currentView === 'library' ? 'active' : ''}`} onClick={() => currentView !== 'quiz' && onSetView('library')}>
              <Library className="w-4 h-4 md:w-5 md:h-5" />
              <span className="text-sm md:text-base">Study Library</span>
           </div>
@@ -581,13 +610,23 @@ function Sidebar({ isOnline, onOpenSettings, engineName, currentView, onSetView 
 
         <div className="mt-auto md:pt-6 hidden md:block">
           <div className="bento-card p-4 flex flex-col gap-3">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+            <p className="flex text-[10px] font-bold text-slate-400 uppercase tracking-widest items-center gap-1">
                <Settings className="w-3 h-3" /> Settings
             </p>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-bold text-slate-700 truncate pr-2">{engineName}</span>
-              <div className="w-8 h-4 bg-blue-600 rounded-full relative flex-shrink-0">
-                <div className="absolute right-1 top-1 w-2 h-2 bg-white rounded-full"></div>
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-slate-700 truncate">{engineName}</span>
+              <div className="flex items-center gap-1.5 text-xs font-bold font-mono">
+                 {isOnline ? (
+                    <>
+                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                      <span className="text-green-600">ONLINE</span>
+                    </>
+                 ) : (
+                    <>
+                      <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                      <span className="text-red-600">OFFLINE</span>
+                    </>
+                 )}
               </div>
             </div>
             <button 
