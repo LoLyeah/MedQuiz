@@ -13,6 +13,7 @@ Return a JSON array of objects. Each object must have exactly these keys:
 - options: array of exactly 5 string choices (medical conditions)
 - answer: the correct string (must exactly match one of the options)
 - explanation: a detailed clinical insight explaining why the answer is correct and others are less likely.
+- tags: array of 2-3 short strings describing topics (e.g. ["Cardiology", "Arrhythmia"]).
 Respond ONLY with the JSON array, no markdown formatting like \`\`\`json.`;
 
   const isCustom = settings.apiProvider === 'custom' || settings.useCustomApi;

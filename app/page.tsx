@@ -37,6 +37,12 @@ export default function Home() {
     nextQuestion();
   };
 
+  const handleStartGame = async () => {
+    setHasAnswered(false);
+    setSelectedOption(null);
+    await startGame();
+  };
+
   const accuracy = stats.gamesPlayed > 0 
     ? Math.round((stats.score / (stats.gamesPlayed * 10)) * 100) // Rough approximation, normally based on total questions answered
     : (stats.score > 0 ? 100 : 0);
@@ -124,19 +130,22 @@ export default function Home() {
   const currentEngineName = getEngineName();
 
   // If we haven't loaded questions properly or on dashboard
-  if (isGameOver) {
-    return (
-      <div className="flex flex-col md:flex-row h-screen w-full bg-slate-50 font-sans p-4 md:p-6 overflow-hidden">
-        <Sidebar 
+  const progressPercent = Math.round((currentIndex / questions.length) * 100) || 0;
+
+  return (
+    <div className="flex flex-col md:flex-row h-screen w-full bg-slate-50 font-sans p-4 md:p-6 overflow-hidden">
+      <Sidebar 
           isOnline={isOnline} 
           apiStatus={apiStatus}
           onOpenSettings={() => setShowSettings(true)} 
           engineName={currentEngineName} 
-          currentView={currentView}
+          currentView={isGameOver ? currentView : 'quiz'}
           onSetView={(v) => setCurrentView(v as any)}
-        />
-        {gameState.showEvaluation ? (
-          <main className="flex-1 overflow-y-auto mt-4 md:mt-0 pl-0 md:pl-4 flex flex-col">
+      />
+      <AnimatePresence mode="wait">
+        {isGameOver ? (
+          gameState.showEvaluation ? (
+            <motion.main key="eval" initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="flex-1 overflow-y-auto mt-4 md:mt-0 pl-0 md:pl-4 flex flex-col">
              <div className="my-auto flex flex-col items-center w-full max-w-2xl mx-auto py-8">
                <motion.div 
                   initial={{ opacity: 0, y: 50, scale: 0.95 }}
@@ -232,9 +241,9 @@ export default function Home() {
                 </motion.button>
              </motion.div>
              </div>
-          </main>
+            </motion.main>
         ) : currentView === 'dashboard' ? (
-        <main className="flex-1 flex flex-col gap-4 pl-0 md:pl-4 overflow-y-auto mt-4 md:mt-0">
+        <motion.main key="dash" initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}} exit={{opacity:0, x:20}} className="flex-1 flex flex-col gap-4 pl-0 md:pl-4 overflow-y-auto mt-4 md:mt-0">
            <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -298,7 +307,7 @@ export default function Home() {
                   <motion.button 
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={startGame}
+                    onClick={handleStartGame}
                     disabled={isLoading}
                     className="bg-blue-600 text-white px-8 md:px-12 py-3 md:py-4 rounded-full font-bold text-base md:text-lg hover:bg-blue-700 transition shadow-xl shadow-blue-200 flex items-center justify-center gap-3 disabled:opacity-50 w-full"
                   >
@@ -315,9 +324,9 @@ export default function Home() {
                 </div>
               </div>
            </motion.div>
-        </main>
+        </motion.main>
         ) : (
-          <main className="flex-1 overflow-auto pl-0 md:pl-4 pb-10 mt-4 md:mt-0">
+          <motion.main key="lib" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} className="flex-1 overflow-auto pl-0 md:pl-4 pb-10 mt-4 md:mt-0">
              <div className="mb-6 flex justify-between items-end">
                 <div>
                   <h2 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">Study Library</h2>
@@ -345,31 +354,10 @@ export default function Home() {
                    </div>
                 ))}
              </div>
-          </main>
-        )}
-        <AnimatePresence>
-          {showSettings && <SettingsModal settings={settings} onSave={updateSettings} onClose={() => setShowSettings(false)} />}
-        </AnimatePresence>
-      </div>
-    );
-  }
-
-  // Active Game State
-  const progressPercent = Math.round((currentIndex / questions.length) * 100) || 0;
-
-  return (
-    <div className="flex flex-col md:flex-row h-screen w-full bg-slate-50 font-sans p-4 md:p-6 overflow-hidden">
-      <Sidebar 
-          isOnline={isOnline} 
-          apiStatus={apiStatus}
-          onOpenSettings={() => setShowSettings(true)} 
-          engineName={currentEngineName} 
-          currentView="quiz"
-          onSetView={(v) => setCurrentView(v as any)}
-      />
-      
-      <main className="flex-1 flex flex-col lg:grid lg:grid-cols-12 gap-4 pl-0 md:pl-4 overflow-y-auto mt-4 md:mt-0 items-start">
-        <div className="lg:col-span-8 flex flex-col gap-4 w-full">
+          </motion.main>
+        )) : (
+          <motion.main key="quiz" initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="flex-1 flex flex-col lg:grid lg:grid-cols-12 gap-4 pl-0 md:pl-4 overflow-y-auto mt-4 md:mt-0 items-start">
+            <div className="lg:col-span-8 flex flex-col gap-4 w-full">
           {/* Top Header / Progress */}
           <div className="bento-card p-4 md:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex-1 w-full">
@@ -550,7 +538,9 @@ export default function Home() {
           </div>
         </div>
       </div>
-    </main>
+    </motion.main>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {showSettings && <SettingsModal settings={settings} onSave={updateSettings} onClose={() => setShowSettings(false)} />}
