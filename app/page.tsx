@@ -322,11 +322,11 @@ export default function Home() {
              <div className="grid grid-cols-1 gap-4 custom-scrollbar">
                 {questionBank.filter(q => stats.solvedCases?.includes(q.id)).map((q, i) => (
                    <div key={q.id} className="bento-card p-6 flex flex-col gap-4">
-                      <div className="flex items-center gap-3">
-                         <span className="badge bg-blue-100 text-blue-600">Case #{i + 1}</span>
-                         <span className={`badge ${q.difficulty === 'hard' ? 'bg-red-100 text-red-600' : q.difficulty === 'medium' ? 'bg-amber-100 text-amber-600' : 'bg-green-100 text-green-600'}`}>{q.difficulty}</span>
+                      <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                         <span className="badge bg-blue-100 text-blue-600 whitespace-nowrap">Case #{i + 1}</span>
+                         <span className={`badge ${q.difficulty === 'hard' ? 'bg-red-100 text-red-600' : q.difficulty === 'medium' ? 'bg-amber-100 text-amber-600' : 'bg-green-100 text-green-600'} whitespace-nowrap`}>{q.difficulty}</span>
                          {q.tags && q.tags.map(t => (
-                           <span key={t} className="badge bg-slate-100 text-slate-600 uppercase text-[9px] tracking-wide flex items-center gap-1">
+                           <span key={t} className="badge bg-slate-100 text-slate-600 uppercase text-[9px] tracking-wide flex items-center gap-1 whitespace-nowrap">
                               <Tag className="w-2.5 h-2.5" /> {t}
                            </span>
                          ))}
