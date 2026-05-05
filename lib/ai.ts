@@ -87,6 +87,99 @@ Respond ONLY with the JSON array, no markdown formatting like \`\`\`json.`;
   }
 }
 
+export async function generateCorrectedQuestions(
+  flaggedCases: { question: Question, reason: string }[],
+  settings: AppSettings
+): Promise<Question[]> {
+  const prompt = `Here are ${flaggedCases.length} medical diagnostic cases that were flagged by a user. Please regenerate each one into a new, corrected case based on the provided reason.
+Return a JSON array of objects, corresponding to the corrected cases in order.
+Each object must have exactly these keys:
+- caseStudy: a short clinical case study string
+- options: array of exactly 5 string choices (medical conditions)
+- answer: the correct string (must exactly match one of the options)
+- explanation: a detailed clinical insight explaining why the answer is correct
+- tags: array of 2-3 short strings describing topics (e.g. ["Cardiology", "Arrhythmia"]).
+
+Cases to correct:
+${flaggedCases.map((f, i) => `Case ${i + 1}:
+Original Case Study: ${f.question.caseStudy}
+Original Answer: ${f.question.answer}
+Flag Reason: ${f.reason}
+`).join('\n')}
+
+Respond ONLY with the JSON array, no markdown formatting like \`\`\`json.`;
+
+  const isCustom = settings.apiProvider === 'custom' || settings.useCustomApi;
+  const isUserGemini = settings.apiProvider === 'user-gemini';
+
+  if (isCustom && settings.customApiEndpoint) {
+    const res = await fetch(settings.customApiEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(settings.customApiKey ? { 'Authorization': `Bearer ${settings.customApiKey}` } : {})
+      },
+      body: JSON.stringify({
+        model: settings.customApiModel || "llama3-8b-8192",
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+    
+    if (!res.ok) {
+      throw new Error('Failed to fetch from custom API');
+    }
+
+    const data = await res.json();
+    let content = data.choices?.[0]?.message?.content || data.content || '';
+    
+    // Clean up Markdown backticks if they exist
+    content = content.replace(/```json/g, '').replace(/```/g, '');
+    
+    // Fallback: try to find the array boundaries
+    const startIdx = content.indexOf('[');
+    const endIdx = content.lastIndexOf(']');
+    if (startIdx >= 0 && endIdx >= startIdx) {
+        content = content.substring(startIdx, endIdx + 1);
+    }
+
+    const parsed: Omit<Question, 'id' | 'source' | 'difficulty'>[] = JSON.parse(content);
+    return parsed.map((p, i) => ({
+      ...p,
+      id: `ai-${Math.random().toString(36).substring(7)}`,
+      source: 'ai',
+      difficulty: flaggedCases[i]?.question?.difficulty || 'medium',
+      modelId: settings.customApiModel || "custom-model"
+    }));
+  } else {
+    let apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    if (isUserGemini && settings.userGeminiKey) {
+      apiKey = settings.userGeminiKey;
+    }
+    
+    if (!apiKey) {
+      throw new Error('Gemini API Key is missing. Please provide it in settings or ensure default is configured.');
+    }
+    const ai = new GoogleGenAI({ apiKey: apiKey });
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json',
+      }
+    });
+
+    const text = response.text || '';
+    const parsed: Omit<Question, 'id' | 'source' | 'difficulty'>[] = JSON.parse(text);
+    return parsed.map((p, i) => ({
+      ...p,
+      id: `ai-${Math.random().toString(36).substring(7)}`,
+      source: 'ai',
+      difficulty: flaggedCases[i]?.question?.difficulty || 'medium',
+      modelId: 'gemini-2.5-flash'
+    }));
+  }
+}
+
 export async function checkApiConnection(settings: AppSettings): Promise<boolean> {
   try {
     const isCustom = settings.apiProvider === 'custom' || settings.useCustomApi;

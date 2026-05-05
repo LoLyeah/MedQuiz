@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useGameState } from '@/hooks/useGameState';
 import { SettingsModal } from '@/components/SettingsModal';
-import { ReportModal } from '@/components/ReportModal';
-import { Play, Activity, Trophy, Settings, Wifi, WifiOff, FileWarning, Medal, LayoutDashboard, Library, Globe, CheckCircle2, XCircle, AlertCircle, Tag, RefreshCw, HelpCircle } from 'lucide-react';
+import { FlagModal } from '@/components/FlagModal';
+import { Play, Activity, Trophy, Settings, Wifi, WifiOff, FileWarning, Medal, LayoutDashboard, Library, Globe, CheckCircle2, XCircle, AlertCircle, Tag, RefreshCw, HelpCircle, Flag } from 'lucide-react';
 
 export default function Home() {
   const gameState = useGameState();
@@ -21,7 +21,7 @@ export default function Home() {
     stats, settings, currentStreak, questions, currentQuestion, 
     currentIndex, isGameOver, isLoading, isOnline, apiStatus, bankSize, questionBank,
     startGame, handleAnswer, nextQuestion, updateSettings, finishGame,
-    refreshBank, isRefreshing
+    refreshBank, isRefreshing, flagQuestion
   } = gameState;
 
   const onSelectOption = (option: string) => {
@@ -508,7 +508,7 @@ export default function Home() {
                 onClick={() => setShowReport(true)}
                 className="text-xs font-bold text-slate-400 hover:text-slate-600 flex items-center gap-1 transition order-2 sm:order-1"
               >
-                <FileWarning className="w-4 h-4" /> Report Case
+                <Flag className="w-4 h-4" /> Flag Case
               </button>
               <div className="flex gap-2 md:gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap justify-between sm:justify-end order-1 sm:order-2">
                 <button 
@@ -607,7 +607,7 @@ export default function Home() {
 
       <AnimatePresence>
         {showSettings && <SettingsModal settings={settings} onSave={updateSettings} onClose={() => setShowSettings(false)} />}
-        {showReport && currentQuestion && <ReportModal questionId={currentQuestion.id} onClose={() => setShowReport(false)} />}
+        {showReport && currentQuestion && <FlagModal question={currentQuestion} onClose={() => setShowReport(false)} onSubmit={(reason) => flagQuestion(currentQuestion, reason)} />}
       </AnimatePresence>
     </div>
   );

@@ -166,8 +166,21 @@ export function useGameState() {
     }
   };
 
+  const [sessionFlaggedCases, setSessionFlaggedCases] = useState<{ question: Question, reason: string }[]>([]);
+
+  const flagQuestion = (question: Question, reason: string) => {
+    setSessionFlaggedCases(prev => {
+      // Don't add duplicate
+      if (prev.find(f => f.question.id === question.id)) return prev;
+      return [...prev, { question, reason }];
+    });
+  };
+
   const startGame = async () => {
     setIsLoading(true);
+    // Clear previously flagged cases for new session
+    setSessionFlaggedCases([]);
+
     // Take from current bank + mix, filter by difficulty first
     let difficultyQuestions = questionBank.filter(q => q.difficulty === settings.difficulty);
     
@@ -241,6 +254,39 @@ export function useGameState() {
       ...prev,
       gamesPlayed: prev.gamesPlayed + 1
     }));
+    
+    // Check if we need to regenerate flagged AI cases
+    if (sessionFlaggedCases.length > 0) {
+      regenerateFlaggedCases();
+    }
+  };
+
+  const regenerateFlaggedCases = async () => {
+    const aiFlagged = sessionFlaggedCases.filter(f => f.question.source === 'ai');
+    if (aiFlagged.length === 0) return;
+
+    try {
+      // dynamic import so we don't cause circular dependencies if any
+      const { generateCorrectedQuestions } = await import('@/lib/ai');
+      const newQs = await generateCorrectedQuestions(aiFlagged, settings);
+      
+      setQuestionBank(prev => {
+        let newBank = [...prev];
+        // Remove flagged questions from bank
+        const flaggedIds = aiFlagged.map(f => f.question.id);
+        newBank = newBank.filter(q => !flaggedIds.includes(q.id));
+        
+        // Add new regenerated questions
+        for (const newQ of newQs) {
+           newBank.push(newQ);
+        }
+        return newBank;
+      });
+      // Clear them so we don't regenerate again if they visit the page later
+      setSessionFlaggedCases([]);
+    } catch (e) {
+      console.error('Failed to regenerate flagged cases', e);
+    }
   };
 
   const updateSettings = (newSettings: Partial<AppSettings>) => {
@@ -267,6 +313,7 @@ export function useGameState() {
     startGame,
     refreshBank,
     isRefreshing,
+    flagQuestion,
     handleAnswer,
     nextQuestion,
     updateSettings,
