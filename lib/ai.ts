@@ -54,7 +54,8 @@ Respond ONLY with the JSON array, no markdown formatting like \`\`\`json.`;
       ...p,
       id: `ai-${Math.random().toString(36).substring(7)}`,
       source: 'ai',
-      difficulty
+      difficulty,
+      modelId: settings.customApiModel || "custom-model"
     }));
   } else {
     let apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
@@ -80,7 +81,8 @@ Respond ONLY with the JSON array, no markdown formatting like \`\`\`json.`;
       ...p,
       id: `ai-${Math.random().toString(36).substring(7)}`,
       source: 'ai',
-      difficulty
+      difficulty,
+      modelId: 'gemini-2.5-flash'
     }));
   }
 }

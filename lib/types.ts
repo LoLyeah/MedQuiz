@@ -10,6 +10,7 @@ export interface Question {
   difficulty: Difficulty;
   source: 'local' | 'ai';
   tags?: string[];
+  modelId?: string;
 }
 
 export interface UserStats {

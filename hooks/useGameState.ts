@@ -113,7 +113,7 @@ export function useGameState() {
       // Don't overwhelm, fetch slightly only if online and bank < 100
       if (isOnline && questionBank.length > 0 && questionBank.length < 100) {
         try {
-           const moreQs = await generateQuestions(5, settings.difficulty, settings);
+           const moreQs = await generateQuestions(10, settings.difficulty, settings);
            if (mounted) {
              setQuestionBank(prev => {
                 const newBank = [...prev];
@@ -149,7 +149,7 @@ export function useGameState() {
   const refreshBank = async () => {
     setIsRefreshing(true);
     try {
-      const moreQs = await generateQuestions(5, settings.difficulty, settings);
+      const moreQs = await generateQuestions(10, settings.difficulty, settings);
       setQuestionBank(prev => {
         const newBank = [...prev];
         for (const q of moreQs) {

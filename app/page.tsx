@@ -5,13 +5,13 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useGameState } from '@/hooks/useGameState';
 import { SettingsModal } from '@/components/SettingsModal';
 import { ReportModal } from '@/components/ReportModal';
-import { Play, Activity, Trophy, Settings, Wifi, WifiOff, FileWarning, Medal, LayoutDashboard, Library, Globe, CheckCircle2, XCircle, AlertCircle, Tag, RefreshCw } from 'lucide-react';
+import { Play, Activity, Trophy, Settings, Wifi, WifiOff, FileWarning, Medal, LayoutDashboard, Library, Globe, CheckCircle2, XCircle, AlertCircle, Tag, RefreshCw, HelpCircle } from 'lucide-react';
 
 export default function Home() {
   const gameState = useGameState();
   const [showSettings, setShowSettings] = useState(false);
   const [showReport, setShowReport] = useState(false);
-  const [currentView, setCurrentView] = useState<'dashboard' | 'library'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'library' | 'tutorial'>('dashboard');
   
   // Game interaction state
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -324,8 +324,8 @@ export default function Home() {
                 </div>
               </div>
            </motion.div>
-        </motion.main>
-        ) : (
+         </motion.main>
+        ) : currentView === 'library' ? (
           <motion.main key="lib" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} className="flex-1 overflow-auto pl-0 md:pl-4 pb-10 mt-4 md:mt-0">
              <div className="mb-6 flex justify-between items-end">
                 <div>
@@ -340,6 +340,11 @@ export default function Home() {
                       <div className="flex flex-wrap items-center gap-2 md:gap-3">
                          <span className="badge bg-blue-100 text-blue-600 whitespace-nowrap">Case #{i + 1}</span>
                          <span className={`badge ${q.difficulty === 'hard' ? 'bg-red-100 text-red-600' : q.difficulty === 'medium' ? 'bg-amber-100 text-amber-600' : 'bg-green-100 text-green-600'} whitespace-nowrap`}>{q.difficulty}</span>
+                         {q.source === 'ai' && (
+                            <span className="badge bg-purple-100 text-purple-600 flex items-center gap-1 text-[9px] whitespace-nowrap uppercase tracking-wide">
+                               <Activity className="w-2.5 h-2.5" /> AI Generated {q.modelId ? `(${q.modelId})` : ''}
+                            </span>
+                         )}
                          {q.tags && q.tags.map(t => (
                            <span key={t} className="badge bg-slate-100 text-slate-600 uppercase text-[9px] tracking-wide flex items-center gap-1 whitespace-nowrap">
                               <Tag className="w-2.5 h-2.5" /> {t}
@@ -355,7 +360,59 @@ export default function Home() {
                 ))}
              </div>
           </motion.main>
-        )) : (
+        ) : currentView === 'tutorial' ? (
+          <motion.main key="tut" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} className="flex-1 overflow-auto pl-0 md:pl-4 pb-10 mt-4 md:mt-0">
+             <div className="mb-6 flex justify-between items-end">
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">API Configuration</h2>
+                  <p className="text-slate-500 mt-1">Learn how to configure your own API keys for unlimited AI questions.</p>
+                </div>
+             </div>
+             
+             <div className="bento-card p-6 md:p-8 flex flex-col gap-6 max-w-4xl">
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-4">
+                  <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center shrink-0">
+                    <Activity className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-800 text-lg mb-1">Provide Your Own API</h3>
+                    <p className="text-slate-600 text-sm md:text-base leading-relaxed">
+                      MedQuiz AI comes with a built-in question bank and limited AI generation.
+                      To generate unlimited custom clinical scenarios, you can add your own Gemini API Key or configure a Custom API Endpoint.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="font-black text-slate-800 text-lg">Option 1: Using Google Gemini (Recommended)</h4>
+                  <ol className="list-decimal pl-5 space-y-2 text-slate-600 text-sm md:text-base">
+                    <li>Go to <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Google AI Studio</a> and sign in.</li>
+                    <li>Click <strong>&quot;Create API key&quot;</strong> and copy your new API key.</li>
+                    <li>Open <strong>Settings</strong> in the MedQuiz AI sidebar (bottom left).</li>
+                    <li>Select <strong>&quot;User Gemini&quot;</strong> as the API Provider.</li>
+                    <li>Paste your key into the <strong>&quot;Your Gemini API Key&quot;</strong> field.</li>
+                    <li>Click <strong>Save</strong>. You&apos;re ready to generate!</li>
+                  </ol>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="font-black text-slate-800 text-lg">Option 2: Using a Custom Endpoint</h4>
+                  <ol className="list-decimal pl-5 space-y-2 text-slate-600 text-sm md:text-base">
+                    <li>This app supports any OpenAI-compatible completions endpoint.</li>
+                    <li>Open <strong>Settings</strong> and select <strong>&quot;Custom&quot;</strong> API Provider.</li>
+                    <li>Enter the endpoint URL (e.g., <code className="bg-slate-100 px-1 py-0.5 rounded text-xs">https://api.groq.com/openai/v1/chat/completions</code>).</li>
+                    <li>Enter your API key and the desired model name (e.g., <code className="bg-slate-100 px-1 py-0.5 rounded text-xs">llama3-8b-8192</code>).</li>
+                    <li>Click <strong>Save</strong> to connect.</li>
+                  </ol>
+                </div>
+                
+                <div className="bg-slate-100 rounded-xl p-4 text-sm text-slate-600 border border-slate-200">
+                  <p><strong>Privacy Note:</strong> Your API keys are stored locally in your browser&apos;s localStorage. They are never sent to our servers, only directly to the API provider you choose.</p>
+                </div>
+             </div>
+          </motion.main>
+        ) : null
+      ) : (
           <motion.main key="quiz" initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="flex-1 flex flex-col lg:grid lg:grid-cols-12 gap-4 pl-0 md:pl-4 overflow-y-auto mt-4 md:mt-0 items-start">
             <div className="lg:col-span-8 flex flex-col gap-4 w-full">
           {/* Top Header / Progress */}
@@ -607,6 +664,10 @@ function Sidebar({ isOnline, apiStatus, onOpenSettings, engineName, currentView,
           <div className={`sidebar-item flex-shrink-0 flex items-center gap-2 ${currentView === 'library' ? 'active' : ''}`} onClick={() => currentView !== 'quiz' && onSetView('library')}>
              <Library className="w-4 h-4 md:w-5 md:h-5" />
              <span className="text-sm md:text-base">Study Library</span>
+          </div>
+          <div className={`sidebar-item flex-shrink-0 flex items-center gap-2 ${currentView === 'tutorial' ? 'active' : ''}`} onClick={() => currentView !== 'quiz' && onSetView('tutorial')}>
+             <HelpCircle className="w-4 h-4 md:w-5 md:h-5" />
+             <span className="text-sm md:text-base">Tutorial</span>
           </div>
           <div className="md:mt-4 md:px-4 hidden md:block">
              <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
