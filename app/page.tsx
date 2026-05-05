@@ -149,7 +149,7 @@ export default function Home() {
   const toggleDiff = (diff: string) => setLibDiff(prev => prev.includes(diff) ? prev.filter(d => d !== diff) : [...prev, diff]);
 
   return (
-    <div className="flex flex-col md:flex-row h-screen w-full bg-slate-50 font-sans p-4 md:p-6 overflow-hidden">
+    <div className="flex flex-col md:flex-row h-screen w-full bg-slate-50 font-sans p-4 pr-0 md:p-6 md:pr-0 overflow-hidden">
       <Sidebar 
           isOnline={isOnline} 
           apiStatus={apiStatus}
@@ -161,7 +161,7 @@ export default function Home() {
       <AnimatePresence mode="wait">
         {isGameOver ? (
           gameState.showEvaluation ? (
-            <motion.main key="eval" initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="flex-1 overflow-y-auto mt-4 md:mt-0 pl-0 md:pl-4 flex flex-col">
+            <motion.main key="eval" initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="flex-1 overflow-y-auto mt-4 md:mt-0 pl-0 md:pl-4 pr-4 md:pr-6 custom-scrollbar flex flex-col">
              <div className="my-auto flex flex-col items-center w-full max-w-2xl mx-auto py-8">
                <motion.div 
                   initial={{ opacity: 0, y: 50, scale: 0.95 }}
@@ -259,7 +259,7 @@ export default function Home() {
              </div>
             </motion.main>
         ) : currentView === 'dashboard' ? (
-        <motion.main key="dash" initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}} exit={{opacity:0, x:20}} className="flex-1 flex flex-col gap-4 pl-0 md:pl-4 overflow-y-auto mt-4 md:mt-0">
+        <motion.main key="dash" initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}} exit={{opacity:0, x:20}} className="flex-1 flex flex-col gap-4 overflow-y-auto mt-4 md:mt-0 pl-0 md:pl-4 pr-4 md:pr-6 custom-scrollbar">
            <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -342,7 +342,7 @@ export default function Home() {
            </motion.div>
          </motion.main>
         ) : currentView === 'library' ? (
-          <motion.main key="lib" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} className="flex-1 overflow-auto pl-0 md:pl-4 pb-10 mt-4 md:mt-0">
+          <motion.main key="lib" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} className="flex-1 overflow-y-auto mt-4 md:mt-0 pb-10 pl-0 md:pl-4 pr-4 md:pr-6 custom-scrollbar">
              <div className="mb-6 flex justify-between items-end">
                 <div>
                   <h2 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">Study Library</h2>
@@ -354,13 +354,15 @@ export default function Home() {
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 mt-1">Filter by Difficulty</h3>
                   <div className="flex flex-wrap gap-2">
                      {allDiffs.map(d => (
-                       <button 
+                       <motion.button 
                          key={d} 
                          onClick={() => toggleDiff(d)}
+                         whileHover={{ scale: 1.05 }}
+                         whileTap={{ scale: 0.95 }}
                          className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-colors ${libDiff.includes(d) ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                        >
                          {d}
-                       </button>
+                       </motion.button>
                      ))}
                   </div>
                 </div>
@@ -370,26 +372,45 @@ export default function Home() {
                     <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 mt-2">Filter by Tags</h3>
                     <div className="flex flex-wrap gap-2">
                        {allTags.map(t => (
-                         <button 
+                         <motion.button 
                            key={t} 
                            onClick={() => toggleTag(t)}
+                           whileHover={{ scale: 1.05 }}
+                           whileTap={{ scale: 0.95 }}
                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${libTags.includes(t) ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                          >
                            {t}
-                         </button>
+                         </motion.button>
                        ))}
                     </div>
                   </div>
                 )}
              </div>
              
-             <div className="grid grid-cols-1 gap-4 custom-scrollbar">
+             <div className="flex flex-col gap-4 relative">
+               <AnimatePresence initial={false}>
                 {filteredLibraryQuestions.length === 0 ? (
-                  <div className="text-center py-12 text-slate-500 bg-white border border-slate-100 rounded-3xl">
+                  <motion.div 
+                    key="no-results"
+                    layout
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-center py-12 text-slate-500 bg-white border border-slate-100 rounded-3xl"
+                  >
                     <p>No cases match your filters.</p>
-                  </div>
+                  </motion.div>
                 ) : filteredLibraryQuestions.map((q, i) => (
-                   <div key={q.id} className="bento-card p-6 flex flex-col gap-4">
+                   <motion.div 
+                     layout
+                     initial={{ opacity: 0, scale: 0.95 }}
+                     animate={{ opacity: 1, scale: 1 }}
+                     exit={{ opacity: 0, scale: 0.9 }}
+                     transition={{ duration: 0.2, ease: "easeOut" }}
+                     key={q.id} 
+                     className="bento-card p-6 flex flex-col gap-4 w-full"
+                   >
                       <div className="flex flex-col gap-2">
                         <div className="flex flex-wrap items-center gap-2 md:gap-3">
                            <span className="badge bg-blue-100 text-blue-600 whitespace-nowrap">Case #{i + 1}</span>
@@ -415,12 +436,13 @@ export default function Home() {
                          <p className="text-sm font-bold text-blue-600 mb-1">Diagnosis: {q.answer}</p>
                          <p className="text-sm text-slate-600">{q.explanation}</p>
                       </div>
-                   </div>
+                  </motion.div>
                 ))}
-             </div>
+               </AnimatePresence>
+              </div>
           </motion.main>
         ) : currentView === 'tutorial' ? (
-          <motion.main key="tut" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} className="flex-1 overflow-auto pl-0 md:pl-4 pb-10 mt-4 md:mt-0">
+          <motion.main key="tut" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} className="flex-1 overflow-y-auto mt-4 md:mt-0 pb-10 pl-0 md:pl-4 pr-4 md:pr-6 custom-scrollbar">
              <div className="mb-6 flex justify-between items-end">
                 <div>
                   <h2 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">API Configuration</h2>
@@ -472,7 +494,7 @@ export default function Home() {
           </motion.main>
         ) : null
       ) : (
-          <motion.main key="quiz" initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="flex-1 flex flex-col lg:grid lg:grid-cols-12 gap-4 pl-0 md:pl-4 overflow-y-auto mt-4 md:mt-0 items-start">
+          <motion.main key="quiz" initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="flex-1 flex flex-col lg:grid lg:grid-cols-12 gap-4 pl-0 md:pl-4 pr-4 md:pr-6 custom-scrollbar overflow-y-auto mt-4 md:mt-0 items-start">
             <div className="lg:col-span-8 flex flex-col gap-4 w-full">
           {/* Top Header / Progress */}
           <div className="bento-card p-4 md:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -618,7 +640,7 @@ export default function Home() {
             <h4 className="font-bold uppercase text-xs tracking-widest text-slate-400">Clinical Insight</h4>
           </div>
           
-          <div className="flex-1 overflow-y-auto relative z-10 pr-2 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto relative z-10 pr-2 custom-scrollbar-dark">
             {hasAnswered ? (
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-4">
                 <div className="p-4 bg-slate-700/50 rounded-xl border border-slate-600/50">
