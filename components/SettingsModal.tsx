@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { AppSettings } from '@/lib/types';
-import { X } from 'lucide-react';
+import { X, Trash2, AlertTriangle } from 'lucide-react';
 
 interface Props {
   settings: AppSettings;
   onSave: (settings: Partial<AppSettings>) => void;
   onClose: () => void;
+  onClearCache?: () => void;
 }
 
-export function SettingsModal({ settings, onSave, onClose }: Props) {
+export function SettingsModal({ settings, onSave, onClose, onClearCache }: Props) {
   const [diff, setDiff] = useState(settings.difficulty);
   const [useCustom, setUseCustom] = useState(settings.useCustomApi);
   const [endpoint, setEndpoint] = useState(settings.customApiEndpoint || '');
   const [key, setKey] = useState(settings.customApiKey || '');
   const [apiModel, setApiModel] = useState(settings.customApiModel || '');
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   
   const initialProvider = settings.apiProvider || (settings.useCustomApi ? 'custom' : 'system-gemini');
   const [provider, setProvider] = useState<typeof initialProvider>(initialProvider);
@@ -147,6 +149,17 @@ export function SettingsModal({ settings, onSave, onClose }: Props) {
               </div>
             )}
           </div>
+
+          {onClearCache && (
+            <div className="pt-4 border-t border-slate-100">
+              <button
+                onClick={() => setShowClearConfirm(true)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 font-bold transition text-sm"
+              >
+                <Trash2 className="w-4 h-4" /> Clear AI Generated Cases
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="mt-8">
@@ -157,6 +170,50 @@ export function SettingsModal({ settings, onSave, onClose }: Props) {
             Save Changes
           </button>
         </div>
+
+        <AnimatePresence>
+          {showClearConfirm && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-900/50 z-[60] flex items-center justify-center p-4"
+            >
+              <motion.div
+                initial={{ scale: 0.95 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.95 }}
+                className="bg-white rounded-2xl p-6 shadow-xl max-w-sm w-full text-center"
+              >
+                <div className="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertTriangle className="w-6 h-6" />
+                </div>
+                <h3 className="font-bold text-lg text-slate-800 mb-2">Clear Generated Cases?</h3>
+                <p className="text-sm text-slate-500 mb-6">
+                  This will clear all AI-generated cases from your cache and will try to regenerate them using your configured endpoint. Built-in cases will remain. This action cannot be undone.
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowClearConfirm(false)}
+                    className="flex-1 px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (onClearCache) onClearCache();
+                      setShowClearConfirm(false);
+                      onClose();
+                    }}
+                    className="flex-1 px-4 py-2 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition"
+                  >
+                    Confirm Clear
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </motion.div>
   );

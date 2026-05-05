@@ -289,6 +289,11 @@ export function useGameState() {
     }
   };
 
+  const clearCache = async () => {
+    setQuestionBank(prev => prev.filter(q => q.source !== 'ai'));
+    await refreshBank();
+  };
+
   const updateSettings = (newSettings: Partial<AppSettings>) => {
     setSettings(prev => ({ ...prev, ...newSettings }));
   };
@@ -312,6 +317,7 @@ export function useGameState() {
     setShowEvaluation,
     startGame,
     refreshBank,
+    clearCache,
     isRefreshing,
     flagQuestion,
     handleAnswer,

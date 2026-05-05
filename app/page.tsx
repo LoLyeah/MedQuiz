@@ -12,6 +12,8 @@ export default function Home() {
   const [showSettings, setShowSettings] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [currentView, setCurrentView] = useState<'dashboard' | 'library' | 'tutorial'>('dashboard');
+  const [libTags, setLibTags] = useState<string[]>([]);
+  const [libDiff, setLibDiff] = useState<string[]>([]);
   
   // Game interaction state
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -21,7 +23,7 @@ export default function Home() {
     stats, settings, currentStreak, questions, currentQuestion, 
     currentIndex, isGameOver, isLoading, isOnline, apiStatus, bankSize, questionBank,
     startGame, handleAnswer, nextQuestion, updateSettings, finishGame,
-    refreshBank, isRefreshing, flagQuestion
+    refreshBank, clearCache, isRefreshing, flagQuestion
   } = gameState;
 
   const onSelectOption = (option: string) => {
@@ -131,6 +133,20 @@ export default function Home() {
 
   // If we haven't loaded questions properly or on dashboard
   const progressPercent = Math.round((currentIndex / questions.length) * 100) || 0;
+
+  // Library filters computation
+  const solvedQuestions = questionBank.filter(q => stats.solvedCases?.includes(q.id));
+  const allTags = Array.from(new Set(solvedQuestions.flatMap(q => q.tags || []))).sort();
+  const allDiffs = ['easy', 'medium', 'hard'];
+
+  const filteredLibraryQuestions = solvedQuestions.filter(q => {
+    if (libDiff.length > 0 && !libDiff.includes(q.difficulty)) return false;
+    if (libTags.length > 0 && !(q.tags || []).some(t => libTags.includes(t))) return false;
+    return true;
+  });
+
+  const toggleTag = (tag: string) => setLibTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+  const toggleDiff = (diff: string) => setLibDiff(prev => prev.includes(diff) ? prev.filter(d => d !== diff) : [...prev, diff]);
 
   return (
     <div className="flex flex-col md:flex-row h-screen w-full bg-slate-50 font-sans p-4 md:p-6 overflow-hidden">
@@ -254,7 +270,7 @@ export default function Home() {
               <div className="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-6">
                 <Medal className="w-10 h-10" />
               </div>
-              <h2 className="text-3xl md:text-4xl font-black text-slate-800 mb-2 mt-4 tracking-tight">MedQuiz Diagnostics</h2>
+              <h2 className="text-3xl md:text-4xl font-black text-slate-800 mb-2 mt-4 tracking-tight">MedQuiz AI</h2>
               <p className="text-slate-500 mb-6 md:mb-8 max-w-md mx-auto text-sm md:text-base">
                 Test your clinical reasoning skills with real-world case studies powered by AI. Play offline or online.
               </p>
@@ -333,9 +349,46 @@ export default function Home() {
                   <p className="text-slate-500 mt-1">Review {stats.solvedCases?.length || 0} clinical cases you&apos;ve encountered.</p>
                 </div>
              </div>
+             <div className="mb-6 flex flex-col gap-4 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                <div>
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 mt-1">Filter by Difficulty</h3>
+                  <div className="flex flex-wrap gap-2">
+                     {allDiffs.map(d => (
+                       <button 
+                         key={d} 
+                         onClick={() => toggleDiff(d)}
+                         className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-colors ${libDiff.includes(d) ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                       >
+                         {d}
+                       </button>
+                     ))}
+                  </div>
+                </div>
+                {allTags.length > 0 && (
+                  <div>
+                    <div className="w-full h-px bg-slate-100 my-2" />
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 mt-2">Filter by Tags</h3>
+                    <div className="flex flex-wrap gap-2">
+                       {allTags.map(t => (
+                         <button 
+                           key={t} 
+                           onClick={() => toggleTag(t)}
+                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${libTags.includes(t) ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                         >
+                           {t}
+                         </button>
+                       ))}
+                    </div>
+                  </div>
+                )}
+             </div>
              
              <div className="grid grid-cols-1 gap-4 custom-scrollbar">
-                {questionBank.filter(q => stats.solvedCases?.includes(q.id)).map((q, i) => (
+                {filteredLibraryQuestions.length === 0 ? (
+                  <div className="text-center py-12 text-slate-500 bg-white border border-slate-100 rounded-3xl">
+                    <p>No cases match your filters.</p>
+                  </div>
+                ) : filteredLibraryQuestions.map((q, i) => (
                    <div key={q.id} className="bento-card p-6 flex flex-col gap-4">
                       <div className="flex flex-col gap-2">
                         <div className="flex flex-wrap items-center gap-2 md:gap-3">
@@ -606,7 +659,7 @@ export default function Home() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {showSettings && <SettingsModal settings={settings} onSave={updateSettings} onClose={() => setShowSettings(false)} />}
+        {showSettings && <SettingsModal settings={settings} onSave={updateSettings} onClose={() => setShowSettings(false)} onClearCache={clearCache} />}
         {showReport && currentQuestion && <FlagModal question={currentQuestion} onClose={() => setShowReport(false)} onSubmit={(reason) => flagQuestion(currentQuestion, reason)} />}
       </AnimatePresence>
     </div>
@@ -721,7 +774,7 @@ function Sidebar({ isOnline, apiStatus, onOpenSettings, engineName, currentView,
               onClick={onOpenSettings}
               className="text-xs text-blue-600 font-bold hover:text-blue-700 transition"
             >
-              Configure Connection →
+              Configure →
             </button>
           </div>
         </div>
