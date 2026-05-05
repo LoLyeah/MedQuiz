@@ -337,19 +337,25 @@ export default function Home() {
              <div className="grid grid-cols-1 gap-4 custom-scrollbar">
                 {questionBank.filter(q => stats.solvedCases?.includes(q.id)).map((q, i) => (
                    <div key={q.id} className="bento-card p-6 flex flex-col gap-4">
-                      <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                         <span className="badge bg-blue-100 text-blue-600 whitespace-nowrap">Case #{i + 1}</span>
-                         <span className={`badge ${q.difficulty === 'hard' ? 'bg-red-100 text-red-600' : q.difficulty === 'medium' ? 'bg-amber-100 text-amber-600' : 'bg-green-100 text-green-600'} whitespace-nowrap`}>{q.difficulty}</span>
-                         {q.source === 'ai' && (
-                            <span className="badge bg-purple-100 text-purple-600 flex items-center gap-1 text-[9px] whitespace-nowrap uppercase tracking-wide">
-                               <Activity className="w-2.5 h-2.5" /> AI Generated {q.modelId ? `(${q.modelId})` : ''}
-                            </span>
-                         )}
-                         {q.tags && q.tags.map(t => (
-                           <span key={t} className="badge bg-slate-100 text-slate-600 uppercase text-[9px] tracking-wide flex items-center gap-1 whitespace-nowrap">
-                              <Tag className="w-2.5 h-2.5" /> {t}
-                           </span>
-                         ))}
+                      <div className="flex flex-col gap-2">
+                        <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                           <span className="badge bg-blue-100 text-blue-600 whitespace-nowrap">Case #{i + 1}</span>
+                           <span className={`badge ${q.difficulty === 'hard' ? 'bg-red-100 text-red-600' : q.difficulty === 'medium' ? 'bg-amber-100 text-amber-600' : 'bg-green-100 text-green-600'} whitespace-nowrap`}>{q.difficulty}</span>
+                           {q.source === 'ai' && (
+                              <span className="badge bg-purple-100 text-purple-600 flex items-center gap-1 text-[9px] whitespace-nowrap uppercase tracking-wide">
+                                 <Activity className="w-2.5 h-2.5" /> AI Generated {q.modelId ? `(${q.modelId})` : ''}
+                              </span>
+                           )}
+                        </div>
+                        {q.tags && q.tags.length > 0 && (
+                          <div className="flex flex-wrap items-center gap-2 mt-0.5">
+                            {q.tags.map(t => (
+                              <span key={t} className="badge bg-slate-100 text-slate-600 uppercase text-[9px] tracking-wide flex items-center gap-1 whitespace-nowrap">
+                                 <Tag className="w-2.5 h-2.5" /> {t}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <p className="font-medium text-slate-700 leading-relaxed max-w-4xl">{q.caseStudy}</p>
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 max-w-4xl">
